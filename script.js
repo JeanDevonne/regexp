@@ -129,11 +129,11 @@ document.write('</pre>');
 
 //Caracter alfanumerico
 "Killer Frost".match(/\w+/g);
-"Λιβάδι Βέρο".match(/\w+/g);//retorna NULL por que \w solo admite [a-zA-Z0-9]
+"λέα βέρóu".match(/\w+/g);//retorna NULL por que \w solo admite [a-zA-Z0-9]
 
 "Λιβάδι Βέρο".match(/\p{Script=Greek}+/gu); // retorna ["Λιβάδι", "Βέρο"]
 "Killer Frost Λιβάδι Βέρο".match(/\p{Script=Greek}+/gu); // retorna ["Λιβάδι", "Βέρο"] 
-"Killer Frost Λιβάδι Βέρο".match(/\p{Alpha}+/gu);//Cualquier letra
+"Killer Frost λέα βέρóu".match(/\p{Alpha}+/gu);//Cualquier letra
 
 //Propiedades CSS
 "font-size".match(/[/\w-]+/g);
@@ -153,7 +153,7 @@ function cuentaPalabras(texto) {
 //No es un digito \D
 "a$999fz".match(/\D/g); //Devuelve  ["a", "$", "f", "z"]
 
-//Numeros
+//Numeros de tarjeta de crédito
 // 4060 1234 5678 9000
 // 4060-1234-5678-3457
 // 1230123456789123
@@ -162,3 +162,75 @@ function cuentaPalabras(texto) {
 "4060 1234 5678 9000".match(/\d{16}/g); //Nunca hagas esto
 "4060 1234 5678 9000".match(/(\d\D*){16}/);//Obtiene solo digitos
 
+// ^ Inicio de un string
+// $ Fin de un string
+
+"a".match(/^a$/g); // "a"
+"\na\n".match(/^a$/gm); // "a"
+
+//Dates - ISO 8601
+// año-mes-dia
+// 2012-12-12 , 1986-06-13
+"2012-12-12".match(/(\d){4}-(\d){2}-(\d){2}/g);
+
+let str = "1986-06-13";
+/^\d{4}-\d{2}-\d{2}$/.test(str); // true
+
+let str2 = "9999-99-99";
+/^\d{4}-\d{2}-\d{2}$/.test(str2); // true ¿existe mes o dia 99?
+
+let s = "2018-05-18";
+/^\d{4}-(0\d|1[0-2])-([0-2]\d|3[01])$/.test(s); //Probablemente suficiente
+
+//Trimming a String
+
+"  hola :)  ".replace(/^\s+|\s+$/g, ''); // "hola :)"
+
+if (!String.prototype.trim) {
+    String.prototype.trim = function(){
+        return this.replace(/^\s+|\s+$/g, '');//Devuelve un string sin espacios al inicio y final.
+    }
+}
+
+// /b 'Word Boundary'. Marca el inicio o el fin de una palabra ( similar a '^' y '$' para una línea)
+
+"foo".match(/\bfoo\b/g);
+"foo".match(/\bfoo\b/g);
+
+// (?=a)  = seguido por a, éste puede ser cualquier expresión regular.
+"ab".match(/a(b)/g); //"ab"
+"ab".match(/a(?=b)/g); // solo selecciona a si le sigue b -> "a"
+"abaco".match(/a(?=b|c)/g); //Solo a si le sige b o c -> "a"
+//Podemos contar cuantas a's hay en una oración
+"Esta es una oración".match(/a(?=.)/g).length; // 3
+//Podemos tener multiples
+let v1 = "a##%d$";
+/a(?=.*\w)(?=.*\$)/g.test(v1); // true
+
+// (?!a)  = No seguido por a
+let v2 = "a##%d$";
+/a(?=.*\w)(?!.*\$)/g.test(v2); // false
+
+//Intersecciones A ∩ B
+//Las contraseñas deben tener mas de 6 caracteres
+passwor.length > 6 
+&& /\d/.test(password) //.test(passwor) //Tiene simbolos?Tiene digitos?
+&& /[a-z]/i.test(passwor) //tiene letras?
+&& /\w/.test(passwor); //Tiene simbolos?
+//Con Lookaheads...
+/^(?=.*\d)(?=.*[a-z])(?=.*[\W_]).{6,}$)/i;
+
+//Diferencia A - B
+//Entero no divisible por 50
+/^(?!\d+[50]0)\d+$/.test();
+
+// Best Practices
+// Practicality > Precision
+
+//Email
+//Nunca hagan esto
+/^[a-z]+@[a-z]+\.[a-z]{2,5}/; //Falla por los caracteres internacionales. λία@βέρου.ελ , lea@verou.me o ля@Вери.РФ
+
+/^\S+@\S+\.\S+/; //Yes, It's ok to be lax!
+
+//Mantenlo simple
