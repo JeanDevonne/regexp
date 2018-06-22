@@ -12,19 +12,37 @@ Inicia con slash
 
 Meta Caracteres.
 
-[
-{
-(
-)
-\
-+
-^
-$
-.
-|
-?
-*
-+
+.   //Metacaracter Punto (.): Encuentra todo excepto saltos de línea
+[]  //Clases de Caracteres: Los brackets permiten
+    - establecer, o combinación de ambos
+    - concatenar multiples rangos
+    - la mayoría de los metacaracteres no necesitan ser escapados en []
+    Ejemplos
+    [a-z]
+    [0-9]
+    [a-z$@0-9]
+
+()  //Sirven para crear Subexpresiones, crea delimitaciones sobre la que actúa un operador.
+{}  //Cuantificadores
+    {n} = n veces
+    {m,n} = al menos m veces pero no mas de n veces
+    {m,} = al menos m veces
+\   //Backslash: Caracter de escape
+^   //Inicio del string
+$   //Final del string
+|   //Or
+?   // = {0,1} El caracter anterior es opcional, aparece 0 o 1 vez. 
++   // = {1,} El caracter anterior aparece 1 vez o mas.
+*   // = {0,} Es la combinación de ? y +
+
+Flags (g,i,m,y,u,s): Los flags nos permiten modificar la busqueda en el patron
+
+g: Global, busca en el texto completo y no se detiene al encontrar la primera coincidencia.
+i: Insensitive a mayúsculas y minúsculas.
+m: Multilínea, trata los caracteres de inicio y fin (^ y $) como multiples lineas
+y: 
+u: Unicode,
+s: Flag Experimental, hace que el metacaracter punto (.) encuentre saltos de línea.
 
 Las Expresiones regulares tienen muchos usos como:
 validación de datos, extracción de datos, transformación de datos.
@@ -86,13 +104,32 @@ document.write('</pre>');
 
 //Test Challenge:
 // fizz buzz fizzbuzz
-'fizz buzz fizzbuzz'.match(/(fizz(buzz|))|buzz/g)
+'fizz buzz fizzbuzz'.match(/(fizz|)(buzz|)/g); //Encontraria todo incluyendo ""
+'fizz buzz fizzbuzz'.match(/(fizzbuzz|fizz|buzz)/g); //Funciona pero no es elegante
+'fizz buzz fizzbuzz'.match(/(fizz(buzz|))|buzz/g); //Esto probablemente sea mejor
 
 //Match a woman
-'ella es una 👩 y tiene una 👧'.match(/👩/g)
+'ella es una 👩 y tiene una 👧'.match(/👩/g);
 
+//El metacaracter Punto .
 //Match /1.5/g
+//Encuentra todo excepto saltos de línea
+'1.5'.match(/1.5/g);
+'105'.match(/1.5/g);
+'1$5'.match(/1.5/g);
+'1\n5'.match(/1.5/g);   // . No encuentra saltos de línea.
+'1\n5'.match(/1.5/gs);  //El flag s hace que . encuentre saltos de línea
 
+//Si realmente queremos buscar un numero decimal como 1.5
+//debemos escapar el metacaracter anteponiendo un backslash \
+'1.5'.match(/1\.5/g);   //Encuentra 1.5
+'1$5'.match(/1\.5/g);   //No encuentra resultados
+
+//Curiosidad en Emojis: Poopemoji ocupa dos caracteres
+'21💩54'.match(/1.5/gs);  //No encuentra resultados
+'21💩54'.match(/1..5/gs);  //Encuentra 1💩5
+
+//Cuantificadores
 //Match /a{5,10}/g
 'aaaa'.match(/(a){2,}/);
 //Match /ha{2}/g
@@ -108,10 +145,11 @@ document.write('</pre>');
 
 "boooo".match(/bo{0,}/g); // 0 a mas "o"
 "boooo".match(/bo{1,}/g); // 1 a mas "o"
+//Shortcuts para Cuantificadores
 "boooo".match(/bo+/g); // "o" debe aparecer almenos una vez
 "boooo".match(/bo*/g); // * indica que el elemento anterior puede repetirse cero o mas veces
 "boooo".match(/bo?/g); // la "o" es opcional
-
+"cat".match(/o?/g); // Si solo ponemos o? y la cadena no contiene o's, encontraremos 4 cadenas vacias.
 // Validar tags.
 "<p>foo</p>".match(/<.+?>/g);
 
@@ -120,8 +158,12 @@ document.write('</pre>');
 "duck".match(/b|d|f|g|l|m|p|r|t|y|uck/);
 "fuck".match(/b|d|f|g|l|m|p|r|t|y|uck/);
 //Mas elegante.
-"luck".match(/[bdfglmprty]uck/);
-"zuck".match(/[a-z]uck/);
+"luck".match(/[bdfglmprty]uck/); //Set
+"zuck".match(/[a-z]uck/); //Range
+"$uck".match(/[a-z$@0-9]uck/g);
+"1uck".match(/[a-z$@0-9]uck/g);
+".uck".match(/[a-z$@0-9.]uck/g); //Encuentra ".uck"
+"#uck".match(/[a-z$@0-9.]uck/g); //No encuentra nada
 
 //Colores Hex
 // #abc #f00 #BADA55 #COFFEE
